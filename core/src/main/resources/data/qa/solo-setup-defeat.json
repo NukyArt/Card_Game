@@ -1,0 +1,33 @@
+{
+    "difficulty":  "NORMAL",
+    "roundLimit":  1,
+    "startingGold":  10,
+    "marketVisibleSlotCount":  5,
+    "marketRefreshGoldCost":  2,
+    "boardMaxBases":  6,
+    "boardMaxUpgradesPerBase":  3,
+    "marketSalePriceDivisor":  2,
+    "depositGoldPerBonus":  3,
+    "depositMaximumBonus":  5,
+    "roundIncomeGold":  2,
+    "marketTurnSeconds":  120,
+    "productionTurnSeconds":  120,
+    "participants":  [
+                         {
+                             "id":  "player",
+                             "type":  "HUMAN"
+                         },
+                         {
+                             "id":  "bot-1",
+                             "type":  "BOT"
+                         },
+                         {
+                             "id":  "bot-2",
+                             "type":  "BOT"
+                         },
+                         {
+                             "id":  "bot-3",
+                             "type":  "BOT"
+                         }
+                     ]
+}

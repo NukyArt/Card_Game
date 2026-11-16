@@ -1,0 +1,81 @@
+{
+    "id":  "qa-defeat",
+    "name":  "Тестовый проект",
+    "stages":  [
+                   {
+                       "id":  "qa-defeat-0",
+                       "name":  "Золото казначея",
+                       "requirements":  {
+                                            "GOLD":  1000000,
+                                            "PROVISIONS":  1000000,
+                                            "BUILDING_MATERIALS":  1000000,
+                                            "SCROLLS":  1000000
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-defeat-1",
+                       "name":  "Запасы провианта",
+                       "requirements":  {
+                                            "GOLD":  1000000,
+                                            "PROVISIONS":  1000000,
+                                            "BUILDING_MATERIALS":  1000000,
+                                            "SCROLLS":  1000000
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-defeat-2",
+                       "name":  "Строительство",
+                       "requirements":  {
+                                            "GOLD":  1000000,
+                                            "PROVISIONS":  1000000,
+                                            "BUILDING_MATERIALS":  1000000,
+                                            "SCROLLS":  1000000
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-defeat-3",
+                       "name":  "Магические исследования",
+                       "requirements":  {
+                                            "GOLD":  1000000,
+                                            "PROVISIONS":  1000000,
+                                            "BUILDING_MATERIALS":  1000000,
+                                            "SCROLLS":  1000000
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-defeat-4",
+                       "name":  "Завершение проекта",
+                       "requirements":  {
+                                            "GOLD":  1000000,
+                                            "PROVISIONS":  1000000,
+                                            "BUILDING_MATERIALS":  1000000,
+                                            "SCROLLS":  1000000
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   }
+               ]
+}

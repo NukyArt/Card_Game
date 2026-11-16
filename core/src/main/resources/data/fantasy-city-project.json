@@ -1,0 +1,11 @@
+{
+  "id": "fantasy-city",
+  "name": "Фэнтезийный город",
+  "stages": [
+    {"id":"builders-camp","name":"Лагерь строителей","requirements":{"GOLD":40,"PROVISIONS":60,"BUILDING_MATERIALS":60,"SCROLLS":20},"cards":0,"description":"Каждый участник получает 2 золота.","effects":[{"kind":"CREDIT_EACH","resource":"GOLD","amount":2}]},
+    {"id":"walls-workshops","name":"Стены и мастерские","requirements":{"GOLD":60,"PROVISIONS":80,"BUILDING_MATERIALS":120,"SCROLLS":40},"cards":3,"description":"Производство стройматериалов снижено на 1.","effects":[{"kind":"MODIFY_PRODUCTION","resource":"BUILDING_MATERIALS","amount":-1}]},
+    {"id":"city-district","name":"Городской квартал","requirements":{"GOLD":80,"PROVISIONS":120,"BUILDING_MATERIALS":140,"SCROLLS":60},"cards":0,"description":"Каждый участник вносит 3 провианта.","effects":[{"kind":"CONTRIBUTE_EACH","resource":"PROVISIONS","amount":3}]},
+    {"id":"mage-tower","name":"Башня магов","requirements":{"GOLD":100,"PROVISIONS":100,"BUILDING_MATERIALS":120,"SCROLLS":160},"cards":6,"description":"Производство свитков увеличено на 1.","effects":[{"kind":"MODIFY_PRODUCTION","resource":"SCROLLS","amount":1}]},
+    {"id":"city-opening","name":"Открытие города","requirements":{"GOLD":120,"PROVISIONS":140,"BUILDING_MATERIALS":160,"SCROLLS":120},"cards":0,"description":"Немедленная победа.","effects":[]}
+  ]
+}

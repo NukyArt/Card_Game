@@ -1,0 +1,81 @@
+{
+    "id":  "qa-victory",
+    "name":  "Тестовый проект",
+    "stages":  [
+                   {
+                       "id":  "qa-victory-0",
+                       "name":  "Золото казначея",
+                       "requirements":  {
+                                            "GOLD":  4,
+                                            "PROVISIONS":  0,
+                                            "BUILDING_MATERIALS":  0,
+                                            "SCROLLS":  0
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-victory-1",
+                       "name":  "Запасы провианта",
+                       "requirements":  {
+                                            "GOLD":  0,
+                                            "PROVISIONS":  4,
+                                            "BUILDING_MATERIALS":  0,
+                                            "SCROLLS":  0
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-victory-2",
+                       "name":  "Строительство",
+                       "requirements":  {
+                                            "GOLD":  0,
+                                            "PROVISIONS":  0,
+                                            "BUILDING_MATERIALS":  4,
+                                            "SCROLLS":  0
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-victory-3",
+                       "name":  "Магические исследования",
+                       "requirements":  {
+                                            "GOLD":  0,
+                                            "PROVISIONS":  0,
+                                            "BUILDING_MATERIALS":  0,
+                                            "SCROLLS":  4
+                                        },
+                       "cards":  0,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   },
+                   {
+                       "id":  "qa-victory-4",
+                       "name":  "Завершение проекта",
+                       "requirements":  {
+                                            "GOLD":  0,
+                                            "PROVISIONS":  0,
+                                            "BUILDING_MATERIALS":  0,
+                                            "SCROLLS":  0
+                                        },
+                       "cards":  1,
+                       "description":  "Тестовый этап",
+                       "effects":  [
+
+                                   ]
+                   }
+               ]
+}

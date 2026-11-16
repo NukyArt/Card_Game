@@ -1,0 +1,25 @@
+{
+  "cards": [
+    {"id":"treasurer","name":"Казначей","type":"gold-power","marketCount":1,"base":{"price":4,"payout":{"GOLD":4}}},
+    {"id":"moneylender","name":"Королевский ростовщик","type":"gold-power","marketCount":2,"base":{"price":5,"payout":{"GOLD":2},"effects":[{"kind":"CHOICE","amount":1,"resources":["PROVISIONS","BUILDING_MATERIALS","SCROLLS"]}]},"upgrade":{"price":3,"payout":{"GOLD":1},"effects":[{"kind":"CHOICE","amount":1,"resources":["PROVISIONS","BUILDING_MATERIALS","SCROLLS"]}]}},
+    {"id":"tax-collector","name":"Главный мытарь","type":"gold-power","marketCount":2,"base":{"price":5,"payout":{"GOLD":3},"effects":[{"kind":"NEXT_SALE_BONUS","amount":1,"resources":[]}]},"upgrade":{"price":2,"payout":{"GOLD":1,"BUILDING_MATERIALS":1}}},
+    {"id":"inspector","name":"Налоговый инспектор","type":"gold-power","marketCount":2,"base":{"price":3,"payout":{"GOLD":2},"effects":[{"kind":"TRANSFER","amount":0,"resources":[]} ]},"upgrade":{"price":2,"payout":{"GOLD":3}}},
+    {"id":"counterfeiter","name":"Алхимик-фальшивомонетчик","type":"gold-power","marketCount":1,"base":{"price":6,"payout":{"GOLD":5,"SCROLLS":2}}},
+    {"id":"farm","name":"Ферма","type":"fields-feasts","marketCount":1,"base":{"price":4,"payout":{"PROVISIONS":4}}},
+    {"id":"sheep","name":"Овца","type":"fields-feasts","marketCount":3,"base":{"price":3,"payout":{"PROVISIONS":1},"effects":[{"kind":"PER_OTHER_BASE","amount":1,"resources":["PROVISIONS"]}]}},
+    {"id":"winery","name":"Монастырская винодельня","type":"fields-feasts","marketCount":2,"base":{"price":5,"payout":{"PROVISIONS":3},"effects":[{"kind":"FIXED","amount":1,"resources":["GOLD"]}]},"upgrade":{"price":2,"payout":{"PROVISIONS":1,"GOLD":1}}},
+    {"id":"stables","name":"Королевские конюшни","type":"fields-feasts","marketCount":2,"base":{"price":5,"payout":{"PROVISIONS":2},"effects":[{"kind":"NEXT_TYPE_DISCOUNT","amount":1,"resources":[]}]},"upgrade":{"price":2,"payout":{"GOLD":3}}},
+    {"id":"hunting-lodge","name":"Охотничий домик егеря","type":"fields-feasts","marketCount":1,"base":{"price":5,"payout":{"PROVISIONS":4},"effects":[{"kind":"EXCHANGE","amount":3,"cost":2,"resources":["BUILDING_MATERIALS"]}]}},
+    {"id":"sawmill","name":"Лесопилка","type":"craft-stone","marketCount":1,"base":{"price":4,"payout":{"BUILDING_MATERIALS":4}}},
+    {"id":"quarry","name":"Каменоломня гномов","type":"craft-stone","marketCount":2,"base":{"price":6,"payout":{"BUILDING_MATERIALS":4},"effects":[{"kind":"MATCHING_PURCHASE_PAYOUT","amount":2,"resources":["BUILDING_MATERIALS"]}]}},
+    {"id":"coal-mine","name":"Угольная шахта","type":"craft-stone","marketCount":2,"base":{"price":4,"payout":{"BUILDING_MATERIALS":2},"effects":[{"kind":"REPLACE_BASE","amount":2,"resources":["BUILDING_MATERIALS","GOLD"]}]}},
+    {"id":"timber-storehouses","name":"Укреплённые лесные склады","type":"craft-stone","marketCount":2,"base":{"price":3,"payout":{"BUILDING_MATERIALS":1,"SCROLLS":1}},"upgrade":{"price":2,"payout":{"BUILDING_MATERIALS":3}}},
+    {"id":"forge","name":"Кузница оружейника","type":"craft-stone","marketCount":1,"base":{"price":5,"payout":{"BUILDING_MATERIALS":3},"effects":[{"kind":"FIXED","amount":1,"resources":["SCROLLS"]},{"kind":"FIXED","amount":1,"resources":["GOLD"]}]},"upgrade":{"price":2,"payout":{"BUILDING_MATERIALS":1,"SCROLLS":1}}},
+    {"id":"apprentice-tower","name":"Башня ученика","type":"arcana-mysteries","marketCount":1,"base":{"price":4,"payout":{"SCROLLS":4}}},
+    {"id":"observatory","name":"Обсерватория звездочёта","type":"arcana-mysteries","marketCount":2,"base":{"price":5,"payout":{"SCROLLS":3},"effects":[{"kind":"NEXT_FREE_REFRESH","amount":1,"resources":[]}]},"upgrade":{"price":3,"payout":{"SCROLLS":1},"effects":[{"kind":"CHOICE","amount":1,"resources":["PROVISIONS","BUILDING_MATERIALS"]}]}},
+    {"id":"laboratory","name":"Алхимическая лаборатория","type":"arcana-mysteries","marketCount":2,"base":{"price":5,"payout":{"SCROLLS":2},"effects":[{"kind":"EXCHANGE","amount":1,"cost":2,"resources":["GOLD","PROVISIONS","BUILDING_MATERIALS","SCROLLS"]}]}},
+    {"id":"crystal-ball","name":"Кристальный шар","type":"arcana-mysteries","marketCount":3,"base":{"price":3,"payout":{"SCROLLS":1},"effects":[{"kind":"PER_OTHER_BASE","amount":1,"resources":["SCROLLS"]}]},"upgrade":{"price":2,"payout":{"SCROLLS":3}}},
+    {"id":"citadel","name":"Цитадель архимага","type":"arcana-mysteries","marketCount":1,"base":{"price":6,"payout":{"SCROLLS":5},"effects":[{"kind":"RANDOM","amount":2,"resources":["GOLD","PROVISIONS","BUILDING_MATERIALS","SCROLLS"]}]}}
+  ],
+  "startingCards":["treasurer","farm","sawmill","apprentice-tower"]
+}

@@ -1,0 +1,14 @@
+{
+  "projectPath": "data/fantasy-city-project.json",
+  "illustrationType": "craft-stone",
+  "description": "Постройте город вместе с тремя ботами. Завершите все этапы до окончания раундов.",
+  "illustrationCaption": "Временная иллюстрация",
+  "selectionTitle": "Выберите сценарий",
+  "detailsTitle": "Сценарий",
+  "difficultyTitle": "Сложность",
+  "easy": "Легко — Скоро",
+  "normal": "Обычно — Скоро",
+  "hard": "Сложно — Скоро",
+  "back": "Назад",
+  "play": "Играть"
+}

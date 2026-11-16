@@ -1,0 +1,14 @@
+{
+  "cardAspect": 0.64,
+  "cardHeight": 154,
+  "gap": 10,
+  "hoverLift": 12,
+  "hoverScale": 1.05,
+  "hoverSeconds": 0.15,
+  "moveSeconds": 0.45,
+  "effectSeconds": 0.65,
+  "animations": true,
+  "tableColor": "102C38",
+  "panelColor": "172B36",
+  "accentColor": "D7B770"
+}
