@@ -8,7 +8,7 @@
   "moveSeconds": 0.45,
   "effectSeconds": 0.65,
   "animations": true,
-  "tableColor": "102C38",
-  "panelColor": "172B36",
-  "accentColor": "D7B770"
+  "tableColor": "EFC98D",
+  "panelColor": "FFF0CE",
+  "accentColor": "F7B253"
 }

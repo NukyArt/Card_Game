@@ -14,6 +14,12 @@ class TableStyleTest {
         assertEquals(154, style.cardHeight());
         assertTrue(style.animations());
     }
+    @Test void defaultsUseTheWarmLightTheme() {
+        assertEquals("EFC98D", TableStyle.defaults().tableColor());
+        assertEquals("FFF0CE", TableStyle.defaults().panelColor());
+        assertEquals("F7B253", TableStyle.defaults().accentColor());
+        assertThrows(IllegalArgumentException.class, () -> new TableStyle(.64f, 154, 10, 12, 1.05f, .15f, .45f, .65f, true, "not-hex", "FFF0CE", "F7B253"));
+    }
     @Test void rejectsImpossibleGeometryAndInvalidTiming() {
         assertThrows(IllegalArgumentException.class, () -> new TableStyle(.64f, -1, 10, 12, 1.05f, .15f, .45f, .65f, true, "102C38", "172B36", "D7B770"));
         assertThrows(IllegalArgumentException.class, () -> new TableStyle(.64f, 154, 10, 12, 1.05f, Float.NaN, .45f, .65f, true, "102C38", "172B36", "D7B770"));

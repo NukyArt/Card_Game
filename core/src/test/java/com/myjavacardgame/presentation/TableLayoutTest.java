@@ -32,6 +32,22 @@ class TableLayoutTest {
         assertEquals(360, viewport.y(500), .001f);
         assertFalse(new TableLayout.Rect(0, 0, 10, 10).contains(10, 5));
     }
+    @Test void deckFitsBesideFiveFixedMarketSlotsAtEverySupportedStyle() {
+        for (float aspect : new float[]{.5f, .64f, .8f}) {
+            var style = new TableStyle(aspect, 160, 12, 12, 1.05f, .15f, .45f, .65f, true, "EFC98D", "FFF0CE", "F7B253");
+            var layout = new TableLayout(style);
+            var deck = layout.deck();
+            assertTrue(deck.x() > layout.market(4, 5).right());
+            assertTrue(deck.right() + 9 < TableLayout.WIDTH);
+            assertFalse(deck.overlaps(layout.discard()));
+            assertFalse(deck.overlaps(layout.project()));
+            for (int seat = 0; seat < 4; seat++) for (int i = 0; i < 6; i++) assertFalse(deck.overlaps(layout.board(seat, i)));
+            for (int i = 0; i < 5; i++) {
+                assertFalse(layout.market(i, 5).overlaps(deck));
+                assertEquals(277, layout.market(i, 5).y());
+            }
+        }
+    }
     @Test void invalidIndicesAndWindowSizesAreRejected() {
         var layout = new TableLayout(TableStyle.defaults());
         assertThrows(IllegalArgumentException.class, () -> layout.board(0, 6));

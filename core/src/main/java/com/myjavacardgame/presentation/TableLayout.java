@@ -45,15 +45,17 @@ public final class TableLayout {
         return new Rect((seat == 2 ? 25 : WIDTH - 25 - w * 2 - style.gap()) + (index % 2) * (w + style.gap()),
                 435 - (index / 2) * (h + 22), w, h);
     }
-    /** Returns a centered market slot; empty slots retain their location. */
+    /** Returns a market slot with room reserved for the draw pile on the right. */
     public Rect market(int index, int count) {
         if (count <= 0 || index < 0 || index >= count) throw new IllegalArgumentException("Invalid market index");
-        float h = Math.min(style.cardHeight(), (700 - style.gap() * (count - 1)) / count / style.cardAspect());
+        float h = Math.min(style.cardHeight(), (550 - style.gap() * (count - 1)) / count / style.cardAspect());
         float w = h * style.cardAspect();
-        return new Rect((WIDTH - count * w - (count - 1) * style.gap()) / 2 + index * (w + style.gap()), 277, w, h);
+        return new Rect(310 + index * (w + style.gap()), 277, w, h);
     }
     /** Returns the central project panel. */
     public Rect project() { return new Rect(274, 461, 732, 91); }
-    /** Returns the destination for discarded market cards. */
-    public Rect discard() { return new Rect(945, 284, 45, 70); }
+    /** Returns the visible draw pile to the right of all five market slots. */
+    public Rect deck() { return new Rect(882, 277, style.cardHeight() * style.cardAspect(), style.cardHeight()); }
+    /** Returns the small discard pile, separate from the draw pile. */
+    public Rect discard() { return new Rect(1025, 282, 28, 44); }
 }

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 /** Tabletop solo UI: snapshots drive cards, commands drive rules, animations are decorative. */
 public final class SoloGameScreen {
-    private static final String EVIDENCE = "production/qa/evidence/table-controls-fixes";
+    private static final String EVIDENCE = "production/qa/evidence/warm-fantasy-ui";
     private static final int WIDTH = TableLayout.WIDTH, HEIGHT = TableLayout.HEIGHT;
     private final SpriteBatch batch = new SpriteBatch();
     private final List<Button> buttons = new ArrayList<>();
@@ -96,6 +96,12 @@ public final class SoloGameScreen {
             transferTo = 1; selectedBase = selectedMarket = selectedUpgrade = inspectId = hoveredId = null;
             projectPulse = hoverTime = 0; feedback = t("started");
             observed = driver.snapshot(); synchronizeSelections(observed);
+            if (motion) {
+                int order = 0;
+                for (var card : placements(observed).values()) if (card.market()) {
+                    animations.deal(card.id(), table.deck(), card.bounds(), style.moveSeconds(), order++ * style.moveSeconds() * .2f);
+                }
+            }
         } catch (Exception exception) { throw new IllegalStateException("Unable to load solo setup", exception); }
     }
 
@@ -204,7 +210,7 @@ public final class SoloGameScreen {
         var viewport = TableLayout.viewport(width, height);
         pointerX = viewport.x(Gdx.input.getX()); pointerY = viewport.y(Gdx.input.getY());
         float offsetX = viewport.offsetX() / viewport.scale(), offsetY = viewport.offsetY() / viewport.scale();
-        ScreenUtils.clear(.025f, .045f, .065f, 1);
+        ScreenUtils.clear(.94f, .79f, .55f, 1);
         batch.setProjectionMatrix(new Matrix4().setToOrtho2D(-offsetX, -offsetY, width / viewport.scale(), height / viewport.scale()));
         buttons.clear(); visible.clear();
         var state = driver.snapshot(); synchronizeSelections(state); syncContributionMaximum(state);
@@ -219,7 +225,7 @@ public final class SoloGameScreen {
         if (projectWindows.blocking()) drawProjectWindow(state);
         batch.end();
         if (!projectWindows.blocking() && Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && driver.activationPrompt().isEmpty() && !purchaseChoices && !journal) {
-            if (inspectId == null) visible.stream().filter(c -> c.bounds().contains(pointerX, pointerY)).findFirst().ifPresent(c -> inspectId = c.id());
+            if (inspectId == null) visible.stream().filter(c -> (!c.market() || !animations.moving(c.id())) && c.bounds().contains(pointerX, pointerY)).findFirst().ifPresent(c -> inspectId = c.id());
             else {
                 var selected = placements(state).get(inspectId);
                 if (selected != null && !selected.market()) state.boards().get(selected.owner()).slots().stream()
@@ -307,11 +313,12 @@ public final class SoloGameScreen {
         if (!motion) return;
         var old = placements(before); var next = placements(after);
         boolean projectChanged = !before.projectProgress().equals(after.projectProgress());
+        int dealOrder = 0;
         for (var card : next.values()) {
             ghosts.remove(card.id());
             var previous = old.get(card.id());
             if (previous == null) {
-                if (card.market()) animations.move(card.id(), table.discard(), card.bounds(), style.moveSeconds(), false);
+                if (card.market()) animations.deal(card.id(), table.deck(), card.bounds(), style.moveSeconds(), dealOrder++ * style.moveSeconds() * .2f);
             } else if (!previous.bounds().equals(card.bounds()) || previous.market() != card.market()) {
                 ghosts.remove(card.id());
                 animations.move(card.id(), previous.bounds(), card.bounds(), style.moveSeconds(), false);
@@ -330,19 +337,19 @@ public final class SoloGameScreen {
 
     private void drawTable() {
         fill(0, 0, WIDTH, HEIGHT, style.tableColor());
-        fill(10, 26, 1260, 655, "163A45");
+        fill(10, 26, 1260, 655, "BD8747");
         fill(16, 32, 1248, 643, style.tableColor());
-        fill(262, 263, 756, 297, "193B44");
-        fill(0, 686, WIDTH, 34, "101F2B");
+        fill(262, 263, 756, 297, "F9DBA4");
+        fill(0, 686, WIDTH, 34, style.accentColor());
     }
     private void drawHeader(GameSessionSnapshot state) {
-        label(16, 712, 590, f("header", "round", state.roundNumber(), "phase", words.label("phase", state.currentPhase()), "player", participant(state.currentParticipantId())), 13, Color.WHITE);
-        label(600, 711, 140, f("timer", "seconds", (int) Math.ceil(driver.remainingSeconds())), 12, Color.valueOf(style.accentColor()));
-        button(750, 692, 152, 23, t(driver.paused() ? "resume" : "pause"), () -> driver.setPaused(!driver.paused()));
-        button(910, 692, 145, 23, t(motion ? "table.motionOn" : "table.motionOff"), this::toggleMotion);
-        button(1063, 692, 97, 23, t("screenshot"), () -> captureRequested = true);
-        button(1168, 692, 100, 23, t("menu"), this::returnToMenu);
-        if (!options.label().isEmpty()) label(20, 678, 290, options.label(), 12, Color.GOLD);
+        label(16, 712, 590, f("header", "round", state.roundNumber(), "phase", words.label("phase", state.currentPhase()), "player", participant(state.currentParticipantId())), 13, Color.valueOf(TableStyle.INK));
+        label(600, 711, 140, f("timer", "seconds", (int) Math.ceil(driver.remainingSeconds())), 12, Color.valueOf(TableStyle.HEADING));
+        button(750, 692, 140, 23, t(driver.paused() ? "resume" : "pause"), () -> driver.setPaused(!driver.paused()));
+        button(896, 692, 137, 23, t(motion ? "table.motionOn" : "table.motionOff"), this::toggleMotion);
+        button(1039, 692, 86, 23, t("screenshot"), () -> captureRequested = true);
+        button(1131, 692, 137, 23, t("menu"), this::returnToMenu);
+        if (!options.label().isEmpty()) label(20, 678, 290, options.label(), 12, Color.valueOf(TableStyle.HEADING));
     }
     private void toggleMotion() {
         motion = !motion; animations.setEnabled(motion); hover.clear(); pulses.clear(); projectSources.clear(); ghosts.clear(); projectPulse = 0;
@@ -354,24 +361,33 @@ public final class SoloGameScreen {
             float x = seat <= 1 ? 352 : seat == 2 ? 24 : 1080;
             float y = seat == 0 ? 207 : seat == 1 ? 683 : 566;
             String name = (seat == 0 ? t("table.yourBoard") + " / " : "") + f("balance", "player", participant(owner), "gold", state.goldBalances().get(owner));
-            label(x, y, seat <= 1 ? 580 : 180, name, 12, pulses.containsKey(owner) ? Color.GOLD : Color.valueOf("BDD0CD"));
+            label(x, y, seat <= 1 ? 580 : 180, name, 12, pulses.containsKey(owner) ? Color.valueOf(TableStyle.HEADING) : Color.valueOf(TableStyle.INK));
         }
         drawProject(state);
-        label(282, 452, 350, t("market"), 12, Color.valueOf(style.accentColor()));
+        label(282, 452, 350, t("market"), 12, Color.valueOf(TableStyle.HEADING));
         state.market().ifPresent(m -> {
-            label(677, 452, 320, f("deck", "deck", m.drawPileCount(), "discard", m.discardPileCount()), 11, Color.valueOf("A4B9B8"));
+            var deck = table.deck();
+            label(deck.x() - 10, 451, 147, f("deck", "deck", m.drawPileCount(), "discard", m.discardPileCount()), 11, Color.valueOf(TableStyle.MUTED_INK));
+            if (m.drawPileCount() > 0) {
+                for (int layer = 3; layer >= 0; layer--) cards.back(batch,
+                        new TableLayout.Rect(deck.x() + layer * 3, deck.y() + layer * 2, deck.width(), deck.height()));
+            } else {
+                cards.fill(batch, deck, Color.valueOf("E8C48B"));
+                cards.text(batch, t("empty"), deck.x() + 10, deck.y() + deck.height() / 2, deck.width() - 20, 35, 13, Color.valueOf(TableStyle.MUTED_INK));
+            }
+            if (m.discardPileCount() > 0) cards.back(batch, table.discard());
             for (int i = 0; i < m.visibleCards().size(); i++) if (m.visibleCards().get(i).isEmpty()) {
-                var rect = table.market(i, m.visibleCards().size()); cards.fill(batch, rect, Color.valueOf("24414A"));
-                label(rect.x() + 10, rect.y() + rect.height() / 2, rect.width() - 20, t("empty"), 12, Color.LIGHT_GRAY);
+                var rect = table.market(i, m.visibleCards().size()); cards.fill(batch, rect, Color.valueOf("E8C48B"));
+                label(rect.x() + 10, rect.y() + rect.height() / 2, rect.width() - 20, t("empty"), 12, Color.valueOf(TableStyle.MUTED_INK));
             }
         });
         var placed = placements(state);
         visible.addAll(placed.values().stream().filter(c -> !c.upgrade()).toList());
         VisibleCard raised = null;
         for (var card : visible) {
-            if (card.bounds().contains(pointerX, pointerY) && driver.activationPrompt().isEmpty() && inspectId == null) raised = card;
+            if (!animations.moving(card.id()) && card.bounds().contains(pointerX, pointerY) && driver.activationPrompt().isEmpty() && inspectId == null) raised = card;
             else drawCard(card, false);
-            buttons.add(new Button(card.bounds(), () -> selectCard(card)));
+            if (!card.market() || !animations.moving(card.id())) buttons.add(new Button(card.bounds(), () -> selectCard(card)));
         }
         if (raised != null) drawCard(raised, true);
         for (var ghost : ghosts.values()) {
@@ -391,14 +407,14 @@ public final class SoloGameScreen {
         if (current == 0) hover.remove(card.id()); else hover.put(card.id(), current);
         var rect = animations.position(card.id(), card.bounds()).lifted(style.hoverLift() * current, 1 + (style.hoverScale() - 1) * current);
         boolean selected = card.id().equals(selectedBase) || card.id().equals(selectedMarket);
-        cards.draw(batch, card.model(), rect, selected, card.used(), card.upgradeCount());
+        cards.reveal(batch, card.model(), rect, selected, card.used(), card.upgradeCount(), animations.reveal(card.id()));
         Float pulse = pulses.get(card.id());
         if (pulse != null && style.effectSeconds() > 0) {
             float t = 1 - pulse / style.effectSeconds();
             cards.fill(batch, rect, new Color(.9f, .77f, .4f, .25f * (1 - t)));
             if (projectSources.contains(card.id())) {
                 float x = rect.x() + (640 - rect.x()) * t, y = rect.top() + (500 - rect.top()) * t;
-                cards.fill(batch, new TableLayout.Rect(x, y, 6, 6), Color.valueOf(style.accentColor()));
+                cards.fill(batch, new TableLayout.Rect(x, y, 6, 6), Color.valueOf(TableStyle.HEADING));
             }
         }
     }
@@ -410,27 +426,27 @@ public final class SoloGameScreen {
 
     private void drawProject(GameSessionSnapshot state) {
         var panel = table.project(); cards.fill(batch, panel, Color.valueOf(style.panelColor()));
-        label(286, 541, 270, t("table.projectTitle"), 14, Color.valueOf(style.accentColor()));
+        label(286, 541, 270, t("table.projectTitle"), 14, Color.valueOf(TableStyle.HEADING));
         state.projectProgress().ifPresent(progress -> {
-            label(772, 541, 225, f("stages", "done", progress.completedStageCount(), "total", project.stages().size()), 12, Color.WHITE);
+            label(772, 541, 225, f("stages", "done", progress.completedStageCount(), "total", project.stages().size()), 12, Color.valueOf(TableStyle.INK));
             float step = 705f / Math.max(1, project.stages().size());
             for (int i = 0; i < project.stages().size(); i++) {
-                String color = i < progress.completedStageCount() ? "547B65" : i == progress.completedStageCount() ? "9E8650" : "2D4952";
+                String color = i < progress.completedStageCount() ? "A66A2C" : i == progress.completedStageCount() ? style.accentColor() : "DAB783";
                 fill(286 + i * step, 510, step - 5, 7, color);
             }
             var stage = progress.currentStageId().flatMap(id -> project.stages().stream().filter(s -> s.id().equals(id)).findFirst());
-            label(286, 504, 705, stage.map(s -> s.displayName()).orElse(t("complete")), 12, Color.WHITE);
+            label(286, 504, 705, stage.map(s -> s.displayName()).orElse(t("complete")), 12, Color.valueOf(TableStyle.INK));
             stage.ifPresent(s -> {
                 String values = Arrays.stream(com.myjavacardgame.domain.resources.ResourceType.values())
                         .map(r -> words.label("resource", r) + " " + progress.contributedResources().get(r) + "/" + s.requirements().resources().get(r))
                         .collect(Collectors.joining("   ·   "));
-                label(286, 484, 705, values + "   ·   " + f("cards", "done", progress.contributedCardCount(), "total", s.requirements().requiredCardCount()), 10, Color.valueOf("BED0C7"));
+                label(286, 484, 705, values + "   ·   " + f("cards", "done", progress.contributedCardCount(), "total", s.requirements().requiredCardCount()), 10, Color.valueOf(TableStyle.MUTED_INK));
             });
         });
-        if (state.stageModifiers().isEmpty()) label(286, 465, 705, t("stageNoModifiers"), 10, Color.LIGHT_GRAY);
+        if (state.stageModifiers().isEmpty()) label(286, 465, 705, t("stageNoModifiers"), 10, Color.valueOf(TableStyle.MUTED_INK));
         else label(286, 465, 705, f("stageModifiers", "effects", state.stageModifiers().stream()
                 .map(e -> (e.amount() >= 0 ? "+" : "") + e.amount() + " " + words.label("resource", e.resource()))
-                .collect(Collectors.joining("; "))), 10, Color.valueOf(style.accentColor()));
+                .collect(Collectors.joining("; "))), 10, Color.valueOf(TableStyle.HEADING));
         button(560, 525, 200, 24, t("project.allStages"), this::openProjectOverview);
         if (projectPulse > 0 && style.effectSeconds() > 0) cards.fill(batch, panel, new Color(.85f, .74f, .4f, .15f * projectPulse / style.effectSeconds()));
     }
@@ -444,9 +460,9 @@ public final class SoloGameScreen {
         button(544, 209, 110, 24, f("contributeGold", "amount", contributionAmount.value()) + " [F]", this::confirmGold);
         button(659, 209, 178, 24, t("contributeBase"), () -> submit(new ContributeBoardPackageCommand(driver.humanId(), baseIndex)));
         button(842, 209, 172, 24, t("endTurn"), this::endTurn);
-        label(19, 160, 200, f("table.upgradeTarget", "number", baseIndex + 1), 12, Color.valueOf("BED0C7"));
+        label(19, 160, 200, f("table.upgradeTarget", "number", baseIndex + 1), 12, Color.valueOf(TableStyle.MUTED_INK));
         var board = state.boards().get(driver.humanId());
-        if (!board.slots().isEmpty()) label(19, 139, 200, board.slots().get(baseIndex).base().instance().definition().name(), 12, Color.WHITE);
+        if (!board.slots().isEmpty()) label(19, 139, 200, board.slots().get(baseIndex).base().instance().definition().name(), 12, Color.valueOf(TableStyle.INK));
     }
 
     private void drawAmountEditor(GoldAmountInput input, float x, float y, float height) {
@@ -475,7 +491,7 @@ public final class SoloGameScreen {
     private void drawPurchaseChoices(GameSessionSnapshot state) {
         if (!humanTurn() || state.currentPhase() != RoundPhase.MARKET) { purchaseChoices = false; return; }
         modal(300, 100, 680, 520);
-        label(330, 590, 620, t("purchaseHow"), 18, Color.valueOf(style.accentColor()));
+        label(330, 590, 620, t("purchaseHow"), 18, Color.valueOf(TableStyle.HEADING));
         int y = 515;
         for (var quote : purchaseQuotes()) {
             String text = quote.role() == CardRole.BASE ? t("buyAsBase") : t("buyAsUpgrade") + " / "
@@ -494,7 +510,7 @@ public final class SoloGameScreen {
     }
 
     private void drawHover(float delta) {
-        var hovered = visible.stream().filter(c -> c.bounds().contains(pointerX, pointerY)).findFirst().orElse(null);
+        var hovered = visible.stream().filter(c -> !animations.moving(c.id()) && c.bounds().contains(pointerX, pointerY)).findFirst().orElse(null);
         String id = hovered == null ? null : hovered.id();
         if (!Objects.equals(id, hoveredId)) { hoveredId = id; hoverTime = 0; }
         else hoverTime += delta;
@@ -507,20 +523,20 @@ public final class SoloGameScreen {
         var all = placements(state); var selected = all.get(inspectId);
         if (selected == null) { inspectId = null; return; }
         modal(216, 60, 848, 610);
-        label(242, 648, 600, participant(selected.owner().isEmpty() ? driver.humanId() : selected.owner()) + " / " + selected.model().name(), 18, Color.WHITE);
+        label(242, 648, 600, participant(selected.owner().isEmpty() ? driver.humanId() : selected.owner()) + " / " + selected.model().name(), 18, Color.valueOf(TableStyle.INK));
         button(933, 629, 108, 28, t("table.close"), () -> inspectId = null);
         cards.draw(batch, selected.model(), new TableLayout.Rect(244, 177, 272, 425), true, selected.used(), selected.upgradeCount());
         String content = selected.model().description();
         if (selected.model().base().isPresent()) content += "\n\n" + cards.production(selected.model().base().orElseThrow());
         if (selected.model().upgrade().isPresent()) content += "\n\n" + t("card.upgradeShort") + " " + words.amounts(selected.model().upgrade().orElseThrow().prices()) + "\n" + cards.production(selected.model().upgrade().orElseThrow());
-        cards.text(batch, content.strip(), 540, 602, 495, 230, 15, Color.valueOf("E4DCC8"));
-        label(541, 391, 490, t("activationFree"), 12, Color.LIGHT_GRAY);
-        label(541, 371, 490, t("inspectionHelp"), 12, Color.LIGHT_GRAY);
+        cards.text(batch, content.strip(), 540, 602, 495, 230, 15, Color.valueOf(TableStyle.INK));
+        label(541, 391, 490, t("activationFree"), 12, Color.valueOf(TableStyle.MUTED_INK));
+        label(541, 371, 490, t("inspectionHelp"), 12, Color.valueOf(TableStyle.MUTED_INK));
         if (!selected.market()) {
             var board = state.boards().get(selected.owner());
             var parent = board.slots().stream().filter(s -> s.base().instance().instanceId().equals(selected.id()) || s.upgrades().stream().anyMatch(u -> u.instance().instanceId().equals(selected.id()))).findFirst();
             parent.ifPresent(slot -> {
-                label(541, 356, 490, t("upgrades").replace("{cards}", ""), 14, Color.valueOf(style.accentColor()));
+                label(541, 356, 490, t("upgrades").replace("{cards}", ""), 14, Color.valueOf(TableStyle.HEADING));
                 for (int i = 0; i < slot.upgrades().size(); i++) {
                     var upgrade = slot.upgrades().get(i).instance();
                     button(540, 309 - i * 36, 490, 29, (upgrade.instanceId().equals(selectedUpgrade) ? "> " : "") + upgrade.definition().name(), () -> {
@@ -528,7 +544,7 @@ public final class SoloGameScreen {
                         inspectId = upgrade.instanceId();
                     });
                 }
-                if (slot.upgrades().isEmpty()) label(541, 326, 490, t("none"), 14, Color.LIGHT_GRAY);
+                if (slot.upgrades().isEmpty()) label(541, 326, 490, t("none"), 14, Color.valueOf(TableStyle.MUTED_INK));
                 if (selected.owner().equals(driver.humanId())) {
                     button(540, 91, 230, 30, t("sellUpgrade"), () -> { submit(new SellUpgradeCommand(driver.humanId(), baseIndex, upgradeIndex)); inspectId = null; });
                 }
@@ -540,11 +556,11 @@ public final class SoloGameScreen {
         inspectId = null;
         syncPromptAmount(prompt);
         modal(380, 147, 520, 465);
-        label(405, 584, 470, t("activation"), 18, Color.valueOf(style.accentColor()));
+        label(405, 584, 470, t("activation"), 18, Color.valueOf(TableStyle.HEADING));
         drawActivationProject(state);
         if (goldPrompt(prompt)) drawAmountEditor(promptAmount, 405, 517, 29);
         if (prompt instanceof ActivationPrompt.ResourceChoice choice) {
-            label(405, 495, 470, choice.mandatory() ? t("chooseResource") : f("exchange", "gold", choice.goldCost()), 14, Color.WHITE);
+            label(405, 495, 470, choice.mandatory() ? t("chooseResource") : f("exchange", "gold", choice.goldCost()), 14, Color.valueOf(TableStyle.INK));
             int y = 435;
             for (var resource : choice.allowed()) {
                 button(405, y, 470, 30, words.label("resource", resource), () -> answer(new ActivationAnswer.Resource(prompt.activationId(), Optional.of(resource)))); y -= 38;
@@ -565,8 +581,8 @@ public final class SoloGameScreen {
         button(405, 170, 470, 30, t("cancelActivation"), () -> driver.cancelActivation());
     }
     private void drawGoldPrompt(ActivationPrompt prompt, int payout, int maximum) {
-        label(405, 485, 470, f("payout", "gold", payout, "maximum", maximum), 15, Color.WHITE);
-        label(405, 452, 470, t("allocationHelp"), 14, Color.LIGHT_GRAY);
+        label(405, 485, 470, f("payout", "gold", payout, "maximum", maximum), 15, Color.valueOf(TableStyle.INK));
+        label(405, 452, 470, t("allocationHelp"), 14, Color.valueOf(TableStyle.MUTED_INK));
         button(405, 371, 470, 34, f("allocate", "gold", promptAmount.value()), () -> answer(new ActivationAnswer.Gold(prompt.activationId(), promptAmount.value())));
         button(405, 326, 470, 34, t("keep"), () -> answer(new ActivationAnswer.Gold(prompt.activationId(), 0)));
     }
@@ -583,23 +599,23 @@ public final class SoloGameScreen {
         var progress = driver.activationProjectProgress().or(() -> state.projectProgress());
         if (progress.isEmpty()) return;
         fill(24, 260, 330, 345, style.panelColor());
-        label(40, 581, 298, t("project.activationProgress"), 15, Color.valueOf(style.accentColor()));
+        label(40, 581, 298, t("project.activationProgress"), 15, Color.valueOf(TableStyle.HEADING));
         var rows = ProjectViewModel.stages(project, progress.orElseThrow());
         var current = rows.stream().filter(row -> row.status() == ProjectViewModel.Status.CURRENT).findFirst();
         if (current.isPresent()) drawStageDetails(current.orElseThrow(), 40, 549, 298);
-        else label(40, 549, 298, t("complete"), 15, Color.WHITE);
+        else label(40, 549, 298, t("complete"), 15, Color.valueOf(TableStyle.INK));
     }
 
     private void drawStageDetails(ProjectViewModel.Stage row, float x, float top, float width) {
-        cards.text(batch, row.definition().displayName(), x, top, width, 52, 17, Color.WHITE);
-        label(x, top - 55, width, t("project.status." + row.status()), 13, Color.valueOf(style.accentColor()));
+        cards.text(batch, row.definition().displayName(), x, top, width, 52, 17, Color.valueOf(TableStyle.INK));
+        label(x, top - 55, width, t("project.status." + row.status()), 13, Color.valueOf(TableStyle.HEADING));
         int index = 0;
         for (var resource : com.myjavacardgame.domain.resources.ResourceType.values()) {
             label(x, top - 85 - index++ * 25, width, words.label("resource", resource) + ": "
-                    + row.contributedResources().get(resource) + " / " + row.definition().requirements().resources().get(resource), 14, Color.WHITE);
+                    + row.contributedResources().get(resource) + " / " + row.definition().requirements().resources().get(resource), 14, Color.valueOf(TableStyle.INK));
         }
-        label(x, top - 185, width, f("cards", "done", row.contributedCards(), "total", row.definition().requirements().requiredCardCount()), 14, Color.WHITE);
-        cards.text(batch, row.definition().completionEffectDescription(), x, top - 218, width, 75, 14, Color.LIGHT_GRAY);
+        label(x, top - 185, width, f("cards", "done", row.contributedCards(), "total", row.definition().requirements().requiredCardCount()), 14, Color.valueOf(TableStyle.INK));
+        cards.text(batch, row.definition().completionEffectDescription(), x, top - 218, width, 75, 14, Color.valueOf(TableStyle.MUTED_INK));
     }
 
     private void drawProjectWindow(GameSessionSnapshot state) {
@@ -607,7 +623,7 @@ public final class SoloGameScreen {
         buttons.add(new Button(new TableLayout.Rect(0, 0, WIDTH, HEIGHT), () -> { }));
         var progress = state.projectProgress().orElseThrow();
         if (projectWindows.overview()) {
-            label(195, 593, 850, t("project.allStages"), 20, Color.valueOf(style.accentColor()));
+            label(195, 593, 850, t("project.allStages"), 20, Color.valueOf(TableStyle.HEADING));
             var rows = ProjectViewModel.stages(project, progress);
             int selected = Math.min(projectWindows.selectedStage(), rows.size() - 1);
             for (int index = 0; index < rows.size(); index++) {
@@ -621,10 +637,10 @@ public final class SoloGameScreen {
         } else {
             var event = projectWindows.notice().orElseThrow();
             var completed = project.stages().stream().filter(stage -> stage.id().equals(event.completedStageId())).findFirst().orElseThrow();
-            label(205, 575, 870, t("project.stageCompleted"), 23, Color.valueOf(style.accentColor()));
-            cards.text(batch, completed.displayName(), 205, 525, 870, 65, 22, Color.WHITE);
-            label(205, 440, 870, t("project.rewardApplied"), 16, Color.valueOf(style.accentColor()));
-            cards.text(batch, completed.completionEffectDescription(), 205, 403, 870, 110, 20, Color.WHITE);
+            label(205, 575, 870, t("project.stageCompleted"), 23, Color.valueOf(TableStyle.HEADING));
+            cards.text(batch, completed.displayName(), 205, 525, 870, 65, 22, Color.valueOf(TableStyle.INK));
+            label(205, 440, 870, t("project.rewardApplied"), 16, Color.valueOf(TableStyle.HEADING));
+            cards.text(batch, completed.completionEffectDescription(), 205, 403, 870, 110, 20, Color.valueOf(TableStyle.INK));
             button(205, 220, 870, 38, t("project.allStages"), this::openProjectOverview);
         }
         button(205, 127, 870, 40, t("table.close") + " [Esc]", this::closeProjectWindow);
@@ -632,21 +648,21 @@ public final class SoloGameScreen {
 
     private void drawResult(GameSessionSnapshot state) {
         modal(308, 170, 664, 388);
-        label(344, 519, 592, t(state.outcome() == MatchOutcome.VICTORY ? "victory" : "defeat"), 23, Color.valueOf(style.accentColor()));
-        label(344, 461, 592, f("finalRound", "round", state.roundNumber()), 19, Color.WHITE);
-        label(344, 420, 592, f("completedStages", "done", state.projectProgress().map(p -> p.completedStageCount()).orElse(0)), 19, Color.WHITE);
+        label(344, 519, 592, t(state.outcome() == MatchOutcome.VICTORY ? "victory" : "defeat"), 23, Color.valueOf(TableStyle.HEADING));
+        label(344, 461, 592, f("finalRound", "round", state.roundNumber()), 19, Color.valueOf(TableStyle.INK));
+        label(344, 420, 592, f("completedStages", "done", state.projectProgress().map(p -> p.completedStageCount()).orElse(0)), 19, Color.valueOf(TableStyle.INK));
         button(344, 288, 592, 44, t("newGame"), this::newGame);
         button(344, 230, 592, 44, t("menu"), this::returnToMenu);
     }
     private void drawFooter() {
-        fill(0, 0, WIDTH, 25, "101F2B");
-        label(14, 20, 1040, feedback, 12, Color.valueOf("C7D3CB"));
+        fill(0, 0, WIDTH, 25, style.accentColor());
+        label(14, 20, 1040, feedback, 12, Color.valueOf(TableStyle.INK));
         button(1080, 2, 187, 21, t("table.log"), () -> journal = !journal);
         if (journal) {
             var logBounds = new TableLayout.Rect(20, 31, 1240, 122);
             cards.fill(batch, logBounds, Color.valueOf(style.panelColor()));
             buttons.add(new Button(logBounds, () -> { }));
-            int y = 139; for (String entry : feed) { label(31, y, 1215, entry, 12, Color.LIGHT_GRAY); y -= 21; }
+            int y = 139; for (String entry : feed) { label(31, y, 1215, entry, 12, Color.valueOf(TableStyle.MUTED_INK)); y -= 21; }
         }
     }
     private void modal(float x, float y, float w, float h) {
@@ -656,11 +672,13 @@ public final class SoloGameScreen {
         fill(x - 2, y - 2, w + 4, h + 4, style.accentColor()); fill(x, y, w, h, style.panelColor());
     }
     private void fill(float x, float y, float w, float h, String hex) { cards.fill(batch, new TableLayout.Rect(x, y, w, h), Color.valueOf(hex)); }
-    private void label(float x, float top, float width, String value, float size, Color color) { cards.text(batch, value, x, top, width, size * 1.3f, size, color); }
+    private void label(float x, float top, float width, String value, float size, Color color) { cards.text(batch, value, x, top, width, size * 1.5f, size, color); }
     private void button(float x, float y, float width, float height, String label, Runnable action) {
         var bounds = new TableLayout.Rect(x, y, width, height);
-        fill(x, y, width, height, bounds.contains(pointerX, pointerY) ? "41616A" : "274550");
-        cards.text(batch, label, x + 7, y + height - 5, width - 14, height - 8, Math.min(13, height * .5f), Color.valueOf("F0E6CC"));
+        boolean over = bounds.contains(pointerX, pointerY);
+        fill(x, y, width, height, over ? "FFD28A" : style.accentColor());
+        fill(x, y, width, 1, "D69A48");
+        cards.text(batch, label, x + 7, y + height - 5, width - 14, height - 8, Math.min(13, height * .5f), Color.valueOf(TableStyle.INK));
         buttons.add(new Button(bounds, action));
     }
     private void returnToMenu() { animations.clear(); ghosts.clear(); requestMainMenu.accept(driver.snapshot().outcome() != MatchOutcome.IN_PROGRESS); }
